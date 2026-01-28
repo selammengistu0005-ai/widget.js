@@ -1,43 +1,40 @@
-(function () {
-  // ===============================================================
+(function() {
+  // Prevent multiple instances
+  if (document.getElementById('fabBtn')) {
+    console.warn('Lumina widget already loaded');
+    return;
+  }
+
+  // =================================================================
   // 1. Load External Dependencies
-  // ===============================================================
-
+  // =================================================================
   // Font Awesome
-  const fa = document.createElement("link");
-  fa.rel = "stylesheet";
-  fa.href =
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";
-  document.head.appendChild(fa);
+  const fontAwesomeLink = document.createElement("link");
+  fontAwesomeLink.rel = "stylesheet";
+  fontAwesomeLink.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";
+  document.head.appendChild(fontAwesomeLink);
 
-  // Marked.js
+  // Marked.js for markdown
   const markedScript = document.createElement("script");
   markedScript.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
-  markedScript.onload = () => {
-    window.__markedReady = true;
-  };
   document.head.appendChild(markedScript);
 
-  // ===============================================================
+  // =================================================================
   // 2. Inject CSS
-  // ===============================================================
-
+  // =================================================================
   const styles = `
     :root {
       --primary: #00d4ff;
       --dark: #0f172a;
       --glass: rgba(255, 255, 255, 0.1);
     }
-
     .support-container {
       position: fixed;
       bottom: 30px;
       right: 30px;
-      z-index: 99999;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Helvetica, Arial, sans-serif;
+      z-index: 9999;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-
     .support-fab {
       width: 60px;
       height: 60px;
@@ -48,11 +45,21 @@
       font-size: 24px;
       cursor: pointer;
       box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       display: flex;
       align-items: center;
       justify-content: center;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.4s ease;
     }
-
+    .support-fab.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .support-fab:hover {
+      transform: scale(1.1);
+    }
     .support-window {
       position: absolute;
       bottom: 80px;
@@ -62,13 +69,18 @@
       max-height: 80vh;
       background: rgba(30, 41, 59, 0.95);
       backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
+      overflow: hidden;
       display: none;
       flex-direction: column;
-      overflow: hidden;
       box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+      animation: slideUp 0.4s ease forwards;
     }
-
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .support-header {
       background: var(--primary);
       padding: 15px;
@@ -77,7 +89,18 @@
       justify-content: space-between;
       align-items: center;
     }
-
+    .support-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+    .support-header button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      color: var(--dark);
+    }
     .support-body {
       flex: 1;
       overflow-y: auto;
@@ -85,153 +108,173 @@
       display: flex;
       flex-direction: column;
       color: white;
+      gap: 10px;
     }
-
     .support-msg {
       background: var(--glass);
+      color: #f8fafc;
       padding: 10px 15px;
       border-radius: 15px 15px 15px 0;
-      margin: 10px 0;
       max-width: 85%;
-      font-size: 0.85rem;
+      align-self: flex-start;
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
-
     .support-msg p { margin: 0; }
-
     .user-msg {
       background: var(--primary);
       color: var(--dark);
-      padding: 8px 12px;
+      padding: 10px 15px;
       border-radius: 15px 15px 0 15px;
-      margin: 10px 0;
-      max-width: 80%;
+      max-width: 85%;
       align-self: flex-end;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      word-wrap: break-word;
     }
-
     .support-input {
       padding: 15px;
       display: flex;
       gap: 10px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-
     .support-input input {
       flex: 1;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 5px;
-      padding: 8px;
+      border-radius: 8px;
+      padding: 10px 12px;
       color: white;
       outline: none;
     }
-
     .support-input button {
       background: none;
       border: none;
       color: var(--primary);
-      font-size: 1.2rem;
       cursor: pointer;
+      font-size: 1.3rem;
     }
   `;
 
-  const styleTag = document.createElement("style");
-  styleTag.textContent = styles;
-  document.head.appendChild(styleTag);
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
 
-  // ===============================================================
-  // 3. Init Widget (DOM SAFE)
-  // ===============================================================
-
-  function initLuminaWidget() {
-    const html = `
-      <div class="support-container">
-        <div class="support-window" id="supportWindow">
-          <div class="support-header">
-            <h3>Lumina Support</h3>
-            <button id="closeBtn">&times;</button>
-          </div>
-          <div class="support-body" id="supportBody">
-            <div class="support-msg">Hi there 👋 How can we help?</div>
-          </div>
-          <div class="support-input">
-            <input id="supportInput" placeholder="Type a message..." />
-            <button id="sendBtn">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
+  // =================================================================
+  // 3. Inject HTML
+  // =================================================================
+  const htmlContent = `
+    <div class="support-container">
+      <div class="support-window" id="supportWindow">
+        <div class="support-header">
+          <h3>Lumina Support</h3>
+          <button id="closeBtn">×</button>
         </div>
-
-        <button class="support-fab" id="fabBtn">
-          <i class="fas fa-comments"></i>
-        </button>
+        <div class="support-body" id="supportBody">
+          <div class="support-msg">Hi there! 👋 How can we help you today?</div>
+          <div class="support-msg" id="reply-time-note">Our typical reply time is under 5 mins.</div>
+        </div>
+        <div class="support-input">
+          <input type="text" id="supportInputField" placeholder="Type your message...">
+          <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
       </div>
-    `;
+      <button class="support-fab" id="fabBtn">
+        <i class="fas fa-comments"></i>
+      </button>
+    </div>
+  `;
 
-    const container = document.createElement("div");
-    container.innerHTML = html;
-    document.body.appendChild(container);
+  const widgetContainer = document.createElement("div");
+  widgetContainer.innerHTML = htmlContent;
+  document.body.appendChild(widgetContainer);
 
-    const fabBtn = document.getElementById("fabBtn");
-    const closeBtn = document.getElementById("closeBtn");
-    const supportWindow = document.getElementById("supportWindow");
-    const input = document.getElementById("supportInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const body = document.getElementById("supportBody");
+  // =================================================================
+  // 4. JavaScript Logic
+  // =================================================================
+  const fabBtn = document.getElementById('fabBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const supportWindow = document.getElementById('supportWindow');
+  const chatInput = document.getElementById('supportInputField');
+  const sendBtn = document.getElementById('sendBtn');
+  const chatMessages = document.getElementById('supportBody');
 
-    function toggle() {
-      supportWindow.style.display =
-        supportWindow.style.display === "flex" ? "none" : "flex";
+  // Show fab button with small animation delay
+  setTimeout(() => {
+    fabBtn.classList.add('visible');
+  }, 800);
+
+  // Toggle window
+  function toggleSupport() {
+    if (supportWindow.style.display === "flex") {
+      supportWindow.style.display = "none";
+    } else {
+      supportWindow.style.display = "flex";
+      chatInput.focus();
     }
+  }
 
-    fabBtn.onclick = toggle;
-    closeBtn.onclick = toggle;
+  fabBtn.addEventListener('click', toggleSupport);
+  closeBtn.addEventListener('click', toggleSupport);
 
-    function sendMessage() {
-      const msg = input.value.trim();
-      if (!msg) return;
+  // Send message
+  function sendMessage() {
+    const messageText = chatInput.value.trim();
+    if (!messageText) return;
 
-      const userMsg = document.createElement("div");
-      userMsg.className = "user-msg";
-      userMsg.textContent = msg;
-      body.appendChild(userMsg);
-      input.value = "";
+    // User message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'user-msg';
+    userMsg.textContent = messageText;
+    chatMessages.appendChild(userMsg);
 
-      fetch("https://lumina-web.onrender.com/api/support", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          const bot = document.createElement("div");
-          bot.className = "support-msg";
-          const reply = d.reply || "Sorry, I didn’t get that.";
-          bot.innerHTML =
-            window.__markedReady && window.marked
-              ? marked.parse(reply)
-              : reply;
-          body.appendChild(bot);
-          body.scrollTop = body.scrollHeight;
-        })
-        .catch(() => {
-          const err = document.createElement("div");
-          err.className = "support-msg";
-          err.textContent = "⚠️ Connection error.";
-          body.appendChild(err);
-        });
-    }
+    chatInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    sendBtn.onclick = sendMessage;
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage();
+    // Fetch AI reply
+    fetch('https://lumina-web.onrender.com/api/support', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: messageText })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Server responded with error');
+      return res.json();
+    })
+    .then(data => {
+      const rawReply = data.reply || "Sorry, I didn’t get that.";
+
+      let formattedReply = rawReply;
+      if (typeof marked !== 'undefined' && marked.parse) {
+        try {
+          formattedReply = marked.parse(rawReply, { breaks: true });
+        } catch (e) {
+          console.warn('Markdown parsing failed', e);
+        }
+      }
+
+      const botMsg = document.createElement('div');
+      botMsg.className = 'support-msg';
+      botMsg.innerHTML = formattedReply;
+
+      chatMessages.appendChild(botMsg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    })
+    .catch(err => {
+      console.error("Fetch error:", err);
+      const errMsg = document.createElement('div');
+      errMsg.className = 'support-msg';
+      errMsg.style.color = "#ff6b6b";
+      errMsg.innerHTML = "⚠️ Sorry, connection issue. Please try again.";
+      chatMessages.appendChild(errMsg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     });
   }
 
-  // DOM ready guard (CRITICAL)
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initLuminaWidget);
-  } else {
-    initLuminaWidget();
-  }
+  sendBtn.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keypress', (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
 })();
