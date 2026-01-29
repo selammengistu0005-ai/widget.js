@@ -83,7 +83,7 @@
     }
     .support-header {
       background: var(--primary);
-      padding: 15px;
+      padding: 8px 15px;
       color: var(--dark);
       display: flex;
       justify-content: space-between;
@@ -96,11 +96,16 @@
     .support-header button {
       background: none;
       border: none;
-      font-size: 20px;
+      font-size: 24px;        /* X is a bit bigger but... */
+      line-height: 1;         /* ...this keeps the box tight around it */
+      padding: 0;             /* Removes default browser space */
+      margin: 0;
       cursor: pointer;
       font-weight: bold;
       color: var(--dark);
-    }
+      display: flex;          /* Centers it perfectly */
+      align-items: center;
+     }
     .support-body {
       flex: 1;
       overflow-y: auto;
@@ -278,3 +283,4 @@
     }
   });
 })();
+
