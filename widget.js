@@ -48,6 +48,19 @@
     messagesContainer.style.padding = '10px';
     chatWindow.appendChild(messagesContainer);
 
+    // Gradient text above input field
+    const replyTimeText = document.createElement('div');
+    replyTimeText.innerText = 'Our typical reply time is under 2 mins';
+    replyTimeText.style.textAlign = 'center';
+    replyTimeText.style.padding = '5px';
+    replyTimeText.style.fontSize = '12px';
+    replyTimeText.style.background = 'linear-gradient(to right, #007bff, #00ff7f)'; // Gradient background
+    replyTimeText.style.webkitBackgroundClip = 'text';
+    replyTimeText.style.webkitTextFillColor = 'transparent';
+    replyTimeText.style.backgroundClip = 'text';
+    replyTimeText.style.color = 'transparent'; // For non-WebKit browsers
+    chatWindow.appendChild(replyTimeText);
+
     // Input area
     const inputContainer = document.createElement('div');
     inputContainer.style.display = 'flex';
