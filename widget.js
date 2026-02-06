@@ -31,7 +31,7 @@
     chatWindow.style.display = 'none';
     chatWindow.style.width = '300px';
     chatWindow.style.height = '400px';
-    chatWindow.style.background = 'rgba(255, 255, 255, 0.9)';
+    chatWindow.style.background = 'rgba(0, 0, 0, 0.7)'; // Adjusted for dark mode to match screenshot
     chatWindow.style.backdropFilter = 'blur(10px)';
     chatWindow.style.border = '1px solid rgba(255, 255, 255, 0.3)';
     chatWindow.style.borderRadius = '10px';
@@ -54,26 +54,28 @@
     replyTimeText.style.textAlign = 'center';
     replyTimeText.style.padding = '5px';
     replyTimeText.style.fontSize = '12px';
-    replyTimeText.style.background = 'linear-gradient(to right, #007bff, #00ff7f)'; // Gradient background
+    replyTimeText.style.color = '#007bff'; // Fallback color for browsers without background-clip support
+    replyTimeText.style.background = 'linear-gradient(to right, #007bff, #00ff7f)'; // Gradient
     replyTimeText.style.webkitBackgroundClip = 'text';
     replyTimeText.style.webkitTextFillColor = 'transparent';
     replyTimeText.style.backgroundClip = 'text';
-    replyTimeText.style.color = 'transparent'; // For non-WebKit browsers
     chatWindow.appendChild(replyTimeText);
 
     // Input area
     const inputContainer = document.createElement('div');
     inputContainer.style.display = 'flex';
-    inputContainer.style.borderTop = '1px solid rgba(0, 0, 0, 0.1)';
+    inputContainer.style.borderTop = '1px solid rgba(255, 255, 255, 0.1)'; // Adjusted for dark mode
     chatWindow.appendChild(inputContainer);
 
     const inputField = document.createElement('input');
     inputField.type = 'text';
-    inputField.placeholder = 'Type your message...';
+    inputField.placeholder = 'Type your query...';
     inputField.style.flex = '1';
     inputField.style.border = 'none';
     inputField.style.padding = '10px';
     inputField.style.outline = 'none';
+    inputField.style.background = 'transparent';
+    inputField.style.color = '#fff'; // For dark mode
     inputContainer.appendChild(inputField);
 
     const sendButton = document.createElement('button');
@@ -82,6 +84,7 @@
     sendButton.style.border = 'none';
     sendButton.style.padding = '10px';
     sendButton.style.cursor = 'pointer';
+    sendButton.style.color = '#a855f7'; // Purple to match screenshot
     inputContainer.appendChild(sendButton);
 
     // Toggle chat window
@@ -99,12 +102,13 @@
         message.style.padding = '8px';
         message.style.borderRadius = '8px';
         message.style.maxWidth = '80%';
+        message.style.color = '#fff'; // For dark mode
         if (sender === 'user') {
             message.style.alignSelf = 'flex-end';
-            message.style.background = '#dcf8c6';
+            message.style.background = 'rgba(168, 85, 247, 0.8)'; // Purple for user messages to match
             message.style.marginLeft = 'auto';
         } else {
-            message.style.background = '#fff';
+            message.style.background = 'rgba(0, 0, 0, 0.5)';
         }
         message.innerText = text;
         messagesContainer.appendChild(message);
