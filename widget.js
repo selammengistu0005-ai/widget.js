@@ -245,11 +245,11 @@
             <div class="nexus-metrics">
                 <div class="nexus-metric-box">
                     <span class="nexus-metric-label">Response Time</span>
-                    <span class="nexus-metric-value">0.4s</span>
+                    <span class="nexus-metric-value">2m - 5m</span>
                 </div>
                 <div class="nexus-metric-box">
                     <span class="nexus-metric-label">Current Load</span>
-                    <span class="nexus-metric-value" style="color: #34d399;">Low</span>
+                    <span class="nexus-metric-value" style="color: #34d399;">medium</span>
                 </div>
             </div>
         </div>
@@ -304,7 +304,7 @@
         inputField.value = '';
 
         // API Call (Preserved from your code)
-        fetch('https://trex-backend-09ab.onrender.com/api/support', {
+        fetch('https://lumina-web.onrender.com/api/support', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -330,3 +330,4 @@
     });
 
 })();
+
