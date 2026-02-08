@@ -314,7 +314,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
+            if (data && data.reply) { 
                 addMessage('assistant', data.reply);
             } else {
                 addMessage('assistant', 'Error: Unable to process request.');
@@ -322,12 +322,11 @@
         })
         .catch(() => addMessage('assistant', 'Connection lost. Reconnecting...'));
     }
-
-    // Event Listeners
     sendButton.addEventListener('click', sendMessage);
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
 
 })();
+
 
